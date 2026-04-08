@@ -19,10 +19,9 @@ const cartOpen = ref(false);
       @mouseenter="cartOpen = true"
       @mouseleave="cartOpen = false"
     >
-      <button
-        type="button"
+      <NuxtLink
+        to="/checkout"
         class="sb-cart__trigger"
-        @click="cartOpen = !cartOpen"
         aria-label="View cart"
       >
         <svg
@@ -43,7 +42,7 @@ const cartOpen = ref(false);
           <circle cx="18" cy="19" r="1.6" fill="currentColor" />
         </svg>
         <span class="sb-cart__badge">{{ totalItems }}</span>
-      </button>
+      </NuxtLink>
 
       <div v-show="cartOpen" class="sb-cart__panel">
         <p v-if="selectedItems.length === 0" class="sb-cart__empty">
