@@ -3,14 +3,20 @@ const { products, cart, increase, decrease, currency } = useStorefront();
 </script>
 
 <template>
-  <main class="sb-page sb-page--home">
+  <main class="sb-page">
     <StoreHeader />
 
     <section class="sb-hero">
       <div class="sb-hero__overlay">
-        <p class="sb-subtext">Curated by M</p>
-        <h1 class="sb-title">SPICED<br />BUTTER</h1>
-        <p class="sb-hero__caption">Classy handcrafted condiment catalogue.</p>
+        <h1 class="sb-hero__heading">About Spiced Butter</h1>
+        <p class="sb-hero__description">
+          Spiced Butter is a celebration of bold flavors and thoughtful craftsmanship.
+          Our range of lovingly handmade condiments and relishes is created in small
+          batches using carefully selected, fresh, locally sourced ingredients bringing
+          you bold, authentic tastes, delivering freshness and quality in every jar.
+          Rooted in home cooking and inspired by vibrant tastes, Spiced Butter is your
+          companion in turning everyday dishes into memorable experiences.
+        </p>
       </div>
     </section>
 

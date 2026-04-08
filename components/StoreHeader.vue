@@ -7,8 +7,11 @@ const cartOpen = ref(false);
 <template>
   <header class="sb-header">
     <NuxtLink to="/" class="sb-brand">
-      <span class="sb-brand__sub">Curated by M</span>
-      <span class="sb-brand__main">SPICED BUTTER</span>
+      <img src="/logo.jpeg" alt="Spiced Butter logo" class="sb-brand__logo" />
+      <span class="sb-brand__text">
+        <span class="sb-brand__sub">Curated by M</span>
+        <span class="sb-brand__main">SPICED BUTTER</span>
+      </span>
     </NuxtLink>
 
     <div
