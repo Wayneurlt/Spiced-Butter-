@@ -441,7 +441,74 @@ body {
     padding: 1.5rem;
   }
 
+  .sb-page--home {
+    height: 100vh;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: auto 0.8fr 1fr;
+    gap: 0.8rem;
+  }
+
+  .sb-page--home .sb-header {
+    margin-bottom: 0;
+  }
+
+  .sb-page--home .sb-hero {
+    min-height: 0;
+    height: 100%;
+    padding: 0.8rem;
+  }
+
+  .sb-page--home .sb-hero__overlay {
+    padding: 0.8rem 1rem;
+  }
+
+  .sb-page--home .sb-subtext {
+    font-size: 1.5rem;
+  }
+
+  .sb-page--home .sb-title {
+    font-size: clamp(2.3rem, 3.8vw, 3.1rem);
+  }
+
+  .sb-page--home .sb-hero__caption {
+    font-size: 0.92rem;
+  }
+
+  .sb-page--home .sb-content {
+    margin-top: 0;
+    min-height: 0;
+  }
+
   .sb-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    height: 100%;
+  }
+
+  .sb-page--home .sb-grid {
+    gap: 0.75rem;
+  }
+
+  .sb-page--home .sb-card__image {
+    height: clamp(98px, 12vh, 140px);
+  }
+
+  .sb-page--home .sb-card__meta {
+    padding: 0.6rem 0.7rem;
+  }
+
+  .sb-page--home .sb-card__name {
+    font-size: clamp(1.1rem, 1.45vw, 1.35rem);
+  }
+
+  .sb-page--home .sb-card__price {
+    font-size: 0.92rem;
+    margin-top: 0.15rem;
+  }
+
+  .sb-page--home .sb-qty {
+    width: 27px;
+    height: 27px;
+    font-size: 1rem;
   }
 }
