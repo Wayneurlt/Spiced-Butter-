@@ -1,6 +1,9 @@
-export default defineNuxtRouteMiddleware(() => {
+export default defineNuxtRouteMiddleware((to) => {
   const { isAuthenticated } = useAdminAuth();
   if (!isAuthenticated()) {
-    return navigateTo("/auth/login");
+    return navigateTo({
+      path: "/auth/login",
+      query: { redirect: to.fullPath },
+    });
   }
 });

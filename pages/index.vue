@@ -1,11 +1,38 @@
 <script setup lang="ts">
-const { products, cart, increase, decrease, currency } = useStorefront();
+import type { Product } from "~/types";
+
+const { products, setProducts, cart, increase, decrease, currency } = useStorefront();
 const activeCategory = ref<"all" | "hot" | "sweet" | "tangy" | "savory">("all");
+
+const { data } = await useAsyncData(
+  "storefront-products",
+  () => $fetch<{ items: Product[] }>("/api/products"),
+  { server: true },
+);
+
+watchEffect(() => {
+  if (data.value?.items) {
+    setProducts(data.value.items);
+  }
+});
+
+let timer: ReturnType<typeof setInterval> | null = null;
+
+onMounted(() => {
+  timer = setInterval(async () => {
+    const latest = await $fetch<{ items: Product[] }>("/api/products");
+    setProducts(latest.items);
+  }, 15000);
+});
+
+onUnmounted(() => {
+  if (timer) clearInterval(timer);
+});
 
 const filteredProducts = computed(() =>
   activeCategory.value === "all"
-    ? products
-    : products.filter((product) => product.category === activeCategory.value),
+    ? products.value
+    : products.value.filter((product) => product.category === activeCategory.value),
 );
 </script>
 
@@ -81,6 +108,7 @@ const filteredProducts = computed(() =>
               <p class="sb-card__note">{{ product.note }}</p>
               <p class="sb-card__size">{{ product.size }}</p>
               <p class="sb-card__price">{{ currency(product.price) }}</p>
+              <p v-if="!product.inStock" class="sb-card__note text-red-300">Out of stock</p>
               <p v-if="cart[product.id] > 0" class="sb-card__line-total">
                 Line total: {{ currency(cart[product.id] * product.price) }}
               </p>
@@ -89,13 +117,13 @@ const filteredProducts = computed(() =>
               <button
                 type="button"
                 class="sb-qty"
-                :disabled="cart[product.id] === 0"
+                :disabled="cart[product.id] === 0 || !product.inStock"
                 @click="decrease(product.id)"
               >
                 -
               </button>
               <span class="sb-qty__value">{{ cart[product.id] }}</span>
-              <button type="button" class="sb-qty" @click="increase(product.id)">+</button>
+              <button type="button" class="sb-qty" :disabled="!product.inStock" @click="increase(product.id)">+</button>
             </div>
           </div>
         </article>

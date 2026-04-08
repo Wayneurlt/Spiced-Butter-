@@ -8,23 +8,39 @@ datasource db {
 }
 
 model Application {
-  id                  String   @id
-  createdAt           DateTime @default(now()) @map("created_at")
-  fullName            String   @map("full_name")
-  phoneNumber         String   @map("phone_number")
-  age                 Int
-  gender              String
-  bio                 String
-  interests           String
-  bringsTable         String?  @map("brings_table")
-  idealDate           String?  @map("ideal_date")
-  cookingSkills       Int      @map("cooking_skills")
-  communicate         String
-  bodyCount           Int      @map("body_count")
-  socialMedia         String?  @map("social_media")
-  petPreference       String?  @map("pet_preference")
-  communicationStyle  String   @map("communication_style")
-  photoDataUrl        String?  @map("photo_data_url")
+  id                 String   @id @default(cuid())
+  createdAt          DateTime @default(now()) @map("created_at")
+  fullName           String   @map("full_name")
+  phoneNumber        String   @map("phone_number")
+  age                Int
+  gender             String
+  bio                String
+  interests          String
+  bringsTable        String?  @map("brings_table")
+  idealDate          String?  @map("ideal_date")
+  cookingSkills      Int      @map("cooking_skills")
+  communicate        String
+  bodyCount          Int      @map("body_count")
+  socialMedia        String?  @map("social_media")
+  petPreference      String?  @map("pet_preference")
+  communicationStyle String   @map("communication_style")
+  photoDataUrl       String?  @map("photo_data_url")
 
   @@map("applications")
+}
+
+model Product {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  name      String
+  price     Int
+  image     String
+  note      String
+  size      String
+  category  String
+  badge     String?
+  inStock   Boolean  @default(true) @map("in_stock")
+
+  @@map("products")
 }

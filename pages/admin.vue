@@ -1,226 +1,150 @@
 <template>
-  <div class="min-h-screen bg-gray-900">
-    <header class="sticky top-0 z-20 backdrop-blur bg-gray-900/80 border-b border-white/10">
-      <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-        <h1 class="text-xl md:text-2xl font-semibold text-white">Admin Dashboard</h1>
-        <button class="px-4 py-2 text-sm bg-pink-600 text-white rounded-md shadow-sm hover:bg-pink-700 active:bg-pink-800 focus:outline-none focus:ring-2 focus:ring-pink-400/50" @click="logout()">Logout</button>
-      </div>
-    </header>
+  <div class="min-h-screen bg-[var(--sb-cream)] text-[var(--sb-brown-deep)]">
+    <div class="mx-auto max-w-7xl md:grid md:grid-cols-[250px_1fr] md:gap-6 md:px-4 md:py-6">
+      <aside class="hidden md:block rounded-2xl border border-[#ddb57a] bg-[#fff5e4] p-4 h-[calc(100vh-3rem)] sticky top-6 overflow-auto">
+        <p class="text-xs uppercase tracking-wide text-[#9a6a21]">Spiced Butter</p>
+        <h1 class="text-xl font-bold mb-6">Admin Panel</h1>
+        <nav class="space-y-2">
+          <button class="w-full text-left rounded-lg px-3 py-2 font-medium" :class="activeTab === 'overview' ? 'bg-[var(--sb-brown)] text-white' : 'hover:bg-[#f7e2c1]'" @click="activeTab = 'overview'">Overview</button>
+          <button class="w-full text-left rounded-lg px-3 py-2 font-medium" :class="activeTab === 'products' ? 'bg-[var(--sb-brown)] text-white' : 'hover:bg-[#f7e2c1]'" @click="activeTab = 'products'">Products</button>
+          <button class="w-full text-left rounded-lg px-3 py-2 font-medium" :class="activeTab === 'create' ? 'bg-[var(--sb-brown)] text-white' : 'hover:bg-[#f7e2c1]'" @click="activeTab = 'create'">{{ editingId ? "Edit Product" : "Add Product" }}</button>
+        </nav>
+        <div class="mt-8 border-t border-[#e2c08d] pt-4 space-y-2">
+          <NuxtLink to="/" class="block rounded-lg px-3 py-2 border border-[#c69451] text-center hover:bg-[#f7e2c1]">View Store</NuxtLink>
+          <button class="w-full rounded-lg px-3 py-2 bg-[var(--sb-brown)] text-white" @click="logout()">Logout</button>
+        </div>
+      </aside>
 
-    <div class="max-w-7xl mx-auto px-4 py-4 md:py-6">
-      <!-- Filters Row -->
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-4 md:items-end">
-        <div class="md:col-span-6">
-          <label class="block text-xs text-gray-300 mb-1">Search</label>
-          <input
-            v-model="search"
-            type="text"
-            placeholder="Search by name, handle, or phone"
-            class="w-full p-3 bg-gray-800 border border-gray-600 rounded-md text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-400/50 focus:border-pink-500"
-          />
-        </div>
-        <div class="md:col-span-3">
-          <label class="block text-xs text-gray-300 mb-1">Gender</label>
-          <select v-model="gender" class="w-full p-3 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-pink-400/50 focus:border-pink-500">
-            <option value="">All genders</option>
-            <option value="female">Female</option>
-            <option value="male">Male</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-        <div class="md:col-span-3 flex gap-2">
-          <div class="flex-1">
-            <label class="block text-xs text-gray-300 mb-1">Page size</label>
-            <select v-model.number="pageSize" class="w-full p-3 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-pink-400/50 focus:border-pink-500">
-              <option :value="10">10</option>
-              <option :value="20">20</option>
-              <option :value="50">50</option>
+      <main class="min-w-0 pb-36 md:pb-0">
+        <section v-if="activeTab === 'overview'" class="space-y-4 px-4 pt-4 md:px-0 md:pt-0">
+          <h2 class="text-xl font-bold">Overview</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div class="rounded-xl border border-[#ddb57a] bg-[#fff5e4] p-4"><p class="text-xs text-[#9a6a21]">Total Products</p><p class="text-2xl font-bold">{{ products.length }}</p></div>
+            <div class="rounded-xl border border-[#ddb57a] bg-[#fff5e4] p-4"><p class="text-xs text-[#9a6a21]">In Stock</p><p class="text-2xl font-bold text-emerald-700">{{ inStockCount }}</p></div>
+            <div class="rounded-xl border border-[#ddb57a] bg-[#fff5e4] p-4"><p class="text-xs text-[#9a6a21]">Out of Stock</p><p class="text-2xl font-bold text-red-700">{{ outOfStockCount }}</p></div>
+            <div class="rounded-xl border border-[#ddb57a] bg-[#fff5e4] p-4"><p class="text-xs text-[#9a6a21]">Avg. Price</p><p class="text-2xl font-bold">{{ currency(avgPrice) }}</p></div>
+          </div>
+        </section>
+
+        <section v-if="activeTab === 'create'" class="space-y-4 px-4 pt-4 md:px-0">
+          <h2 class="text-xl font-bold">{{ editingId ? "Edit Product" : "Add Product" }}</h2>
+          <form class="rounded-2xl border border-[#ddb57a] bg-[#fff5e4] p-4 grid grid-cols-1 md:grid-cols-2 gap-3" @submit.prevent="saveProduct">
+            <input v-model.trim="form.name" class="p-2 bg-white border border-[#d7b07a] rounded" placeholder="Name" required />
+            <input v-model.number="form.price" type="number" min="0" class="p-2 bg-white border border-[#d7b07a] rounded" placeholder="Price (KES)" required />
+            <input v-model.trim="form.image" class="p-2 bg-white border border-[#d7b07a] rounded" placeholder="Image URL" required />
+            <input v-model.trim="form.size" class="p-2 bg-white border border-[#d7b07a] rounded" placeholder="Size" required />
+            <input v-model.trim="form.badge" class="p-2 bg-white border border-[#d7b07a] rounded" placeholder="Badge (optional)" />
+            <select v-model="form.category" class="p-2 bg-white border border-[#d7b07a] rounded">
+              <option value="hot">Hot</option><option value="sweet">Sweet</option><option value="tangy">Tangy</option><option value="savory">Savory</option>
             </select>
+            <textarea v-model.trim="form.note" class="md:col-span-2 p-2 bg-white border border-[#d7b07a] rounded" rows="3" placeholder="Product note" required />
+            <div class="md:col-span-2 rounded border border-[#e7cba4] bg-white p-2 flex items-center gap-3" v-if="form.image">
+              <img :src="form.image" alt="preview" class="w-12 h-12 rounded object-cover border border-[#e7cba4]" @error="onImagePreviewError" />
+              <span class="text-xs text-[#9a6a21]">Image preview</span>
+            </div>
+            <label class="text-sm flex items-center gap-2"><input v-model="form.inStock" type="checkbox" />In stock</label>
+            <div class="md:col-span-2 flex flex-wrap gap-2">
+              <button class="px-4 py-2 rounded bg-[var(--sb-brown)] text-white disabled:opacity-60" :disabled="pending || isSaving || !canSubmit">{{ isSaving ? "Saving..." : editingId ? "Update Product" : "Create Product" }}</button>
+              <button v-if="editingId" class="px-4 py-2 rounded border border-[#c69451]" type="button" @click="resetForm">Cancel Edit</button>
+            </div>
+            <p v-if="formError" class="md:col-span-2 text-sm text-red-700">{{ formError }}</p>
+          </form>
+        </section>
+
+        <section v-if="activeTab === 'products'" class="space-y-4 px-4 pt-4 md:px-0">
+          <div class="flex flex-wrap gap-2 items-center justify-between">
+            <h2 class="text-xl font-bold">Manage Products</h2>
+            <div class="flex gap-2 w-full md:w-auto">
+              <input v-model="search" class="flex-1 md:w-80 p-2 bg-white border border-[#d7b07a] rounded" placeholder="Search products..." />
+              <button class="px-4 py-2 rounded border border-[#c69451] hover:bg-[#f7e2c1] whitespace-nowrap" @click="refresh()">Reload</button>
+            </div>
           </div>
-          <div class="flex items-end pb-0.5 gap-2">
-            <button class="px-4 py-2 bg-gray-700 text-white rounded-md border border-gray-600 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400/40" @click="resetFilters">Reset</button>
-            <button class="px-4 py-2 bg-pink-600 text-white rounded-md shadow-sm hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-pink-400/50" @click="refresh()">Reload</button>
-            <button class="px-4 py-2 bg-gray-700 text-white rounded-md border border-gray-600 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400/40" @click="exportCsv">Export CSV</button>
+          <div class="rounded-2xl border border-[#ddb57a] bg-[#fff5e4] overflow-hidden">
+            <div class="hidden md:block overflow-x-auto">
+            <table class="min-w-[760px] w-full text-sm text-left">
+              <thead class="bg-[#f3ddba] text-[#7a4900] uppercase text-xs"><tr><th class="px-4 py-3">Product</th><th class="px-4 py-3">Category</th><th class="px-4 py-3">Price</th><th class="px-4 py-3">Stock</th><th class="px-4 py-3">Actions</th></tr></thead>
+              <tbody>
+                <tr v-for="product in filteredProducts" :key="product.id" class="border-t border-[#edd3ae]">
+                  <td class="px-4 py-3"><div class="font-semibold">{{ product.name }}</div><div class="text-xs text-[#9a6a21]">{{ product.size }} - {{ product.note }}</div></td>
+                  <td class="px-4 py-3 capitalize">{{ product.category }}</td>
+                  <td class="px-4 py-3">{{ currency(product.price) }}</td>
+                  <td class="px-4 py-3"><span :class="product.inStock ? 'text-emerald-700' : 'text-red-700'">{{ product.inStock ? "In stock" : "Out of stock" }}</span></td>
+                  <td class="px-4 py-3">
+                    <div class="flex flex-wrap gap-2">
+                    <button class="px-2 py-1 rounded border border-[#c69451] disabled:opacity-60" :disabled="isMutating" @click="startEdit(product); activeTab = 'create'">Edit</button>
+                    <button class="px-2 py-1 rounded bg-[#a5650f] text-white disabled:opacity-60" :disabled="isMutating" @click="toggleStock(product)">{{ product.inStock ? "Set Out" : "Restock" }}</button>
+                    <button class="px-2 py-1 rounded bg-red-700 text-white disabled:opacity-60" :disabled="isMutating" @click="removeProduct(product.id)">Delete</button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            </div>
+            <div v-if="!pending && filteredProducts.length === 0" class="p-6 text-center text-[#9a6a21]">
+              No products found for this filter.
+            </div>
+            <div class="md:hidden p-3 space-y-3">
+              <div v-for="product in filteredProducts" :key="product.id" class="rounded-xl border border-[#e7cba4] bg-white p-3">
+                <div class="font-semibold">{{ product.name }}</div>
+                <div class="text-xs text-[#9a6a21]">{{ product.category }} - {{ product.size }}</div>
+                <div class="text-sm mt-1">{{ currency(product.price) }}</div>
+                <div class="text-sm mt-1" :class="product.inStock ? 'text-emerald-700' : 'text-red-700'">{{ product.inStock ? "In stock" : "Out of stock" }}</div>
+                <div class="mt-2 flex gap-2">
+                  <button class="px-2 py-1 text-xs rounded border border-[#c69451] disabled:opacity-60" :disabled="isMutating" @click="startEdit(product); activeTab = 'create'">Edit</button>
+                  <button class="px-2 py-1 text-xs rounded bg-[#a5650f] text-white disabled:opacity-60" :disabled="isMutating" @click="toggleStock(product)">{{ product.inStock ? "Set Out" : "Restock" }}</button>
+                  <button class="px-2 py-1 text-xs rounded bg-red-700 text-white disabled:opacity-60" :disabled="isMutating" @click="removeProduct(product.id)">Delete</button>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        </section>
+        <p v-if="pending" class="px-4 md:px-0 text-[#9a6a21] text-sm">Loading products...</p>
+        <p v-if="errorText" class="px-4 md:px-0 text-red-700 text-sm">{{ errorText }}</p>
+        <p v-if="successText" class="px-4 md:px-0 text-emerald-700 text-sm">{{ successText }}</p>
+      </main>
 
-      <div class="mt-2 min-h-[1.25rem] flex items-center gap-3">
-        <span v-if="loading" class="text-xs text-gray-300">Loading…</span>
-        <span v-if="errorText" class="text-xs text-red-300">{{ errorText }}</span>
-      </div>
-
-      <div class="mb-2 grid grid-cols-1 md:grid-cols-4 gap-3 md:items-center">
-        <input
-          v-model="search"
-          type="text"
-          placeholder="Search by name, handle, or phone"
-          class="w-full md:w-1/2 p-2 border border-gray-300 rounded focus:outline-none focus:border-pink-500"
-        />
-        <select v-model="gender" class="p-2 border border-gray-300 rounded">
-          <option value="">All genders</option>
-          <option value="female">Female</option>
-          <option value="male">Male</option>
-          <option value="other">Other</option>
-        </select>
-        <div class="flex gap-2">
+      <nav class="md:hidden fixed bottom-0 inset-x-0 border-t border-[#d9b47f] bg-[#fff4e0] px-4 py-2 z-30 pb-[calc(0.5rem+env(safe-area-inset-bottom))] shadow-[0_-6px_16px_rgba(93,55,0,0.16)]">
+        <div class="grid grid-cols-3 gap-2">
           <button
-            class="px-4 py-2 bg-gray-100 rounded border border-gray-300"
-            @click="resetFilters"
-          >Reset</button>
-          <button
-            class="px-4 py-2 bg-gray-100 rounded border border-gray-300"
-            @click="exportCsv"
-          >Export CSV</button>
-        </div>
-        <div class="flex items-center gap-2">
-          <label class="text-white">Page size</label>
-          <select v-model.number="pageSize" class="p-2 border border-gray-300 rounded">
-            <option :value="10">10</option>
-            <option :value="20">20</option>
-            <option :value="50">50</option>
-          </select>
-        </div>
-      </div>
-      <div class="mb-4 flex items-center gap-2">
-        <button class="px-3 py-1 bg-gray-100 rounded border" @click="refresh()">Reload</button>
-        <span v-if="loading" class="text-sm text-gray-400">Loading…</span>
-        <span v-if="errorText" class="text-sm text-red-400">{{ errorText }}</span>
-      </div>
-
-      <!-- Stat Cards -->
-      <div v-if="meta" class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
-        <div class="p-3 rounded border border-white/10 bg-white/5">
-          <div class="text-xs text-gray-300">Total</div>
-          <div class="text-2xl font-semibold text-white">{{ meta.total }}</div>
-        </div>
-        <div class="p-3 rounded border border-white/10 bg-white/5">
-          <div class="text-xs text-gray-300">Female</div>
-          <div class="text-2xl font-semibold text-white">{{ meta.counts.female }}</div>
-        </div>
-        <div class="p-3 rounded border border-white/10 bg-white/5">
-          <div class="text-xs text-gray-300">Male</div>
-          <div class="text-2xl font-semibold text-white">{{ meta.counts.male }}</div>
-        </div>
-        <div class="p-3 rounded border border-white/10 bg-white/5">
-          <div class="text-xs text-gray-300">Other</div>
-          <div class="text-2xl font-semibold text-white">{{ meta.counts.other }}</div>
-        </div>
-      </div>
-
-      <!-- Applicants quick list -->
-      <div v-if="applications.length" class="mt-6 mb-4 p-3 rounded border border-white/10 bg-white/5">
-        <div class="text-sm text-gray-300 mb-2">Applicants</div>
-        <div class="flex flex-wrap gap-2 max-h-28 overflow-auto">
-          <button
-            v-for="a in applications"
-            :key="a.id"
-            class="px-2 py-1 rounded bg-pink-600/20 text-pink-100 hover:bg-pink-600/30 text-xs"
-            @click="select(a.id)"
-            :title="a.fullName"
+            aria-label="Overview"
+            title="Overview"
+            class="rounded-md py-2.5 flex items-center justify-center"
+            :class="activeTab === 'overview' ? 'bg-[var(--sb-brown)] text-white' : 'bg-transparent text-[#7a4900]'"
+            @click="activeTab = 'overview'"
           >
-            {{ a.fullName }}
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 12l9-8 9 8"></path>
+              <path d="M5 10v10h14V10"></path>
+            </svg>
+          </button>
+          <button
+            aria-label="Products"
+            title="Products"
+            class="rounded-md py-2.5 flex items-center justify-center"
+            :class="activeTab === 'products' ? 'bg-[var(--sb-brown)] text-white' : 'bg-transparent text-[#7a4900]'"
+            @click="activeTab = 'products'"
+          >
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="6" rx="1"></rect>
+              <rect x="3" y="14" width="18" height="6" rx="1"></rect>
+            </svg>
+          </button>
+          <button
+            :aria-label="editingId ? 'Edit Product' : 'Add Product'"
+            :title="editingId ? 'Edit Product' : 'Add Product'"
+            class="rounded-md py-2.5 flex items-center justify-center"
+            :class="activeTab === 'create' ? 'bg-[var(--sb-brown)] text-white' : 'bg-transparent text-[#7a4900]'"
+            @click="activeTab = 'create'"
+          >
+            <svg v-if="!editingId" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 5v14M5 12h14"></path>
+            </svg>
+            <svg v-else class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 20h4l10-10-4-4L4 16v4z"></path>
+            </svg>
           </button>
         </div>
-      </div>
-
-      <div v-if="!loading && applications.length === 0" class="text-gray-400 text-sm mt-6">No applications found.</div>
-
-      <!-- Desktop table -->
-      <div class="hidden md:block mt-4 overflow-x-auto rounded border border-white/10">
-        <table class="min-w-full text-sm text-left text-gray-300">
-          <thead class="bg-white/5 text-gray-400 text-xs uppercase">
-            <tr>
-              <th class="px-4 py-3">Name</th>
-              <th class="px-4 py-3">Age</th>
-              <th class="px-4 py-3">Gender</th>
-              <th class="px-4 py-3">Handle</th>
-              <th class="px-4 py-3">Created</th>
-              <th class="px-4 py-3">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="app in applications" :key="app.id" class="border-t border-white/10 hover:bg-white/5">
-              <td class="px-4 py-3 font-medium text-white">{{ app.fullName }}</td>
-              <td class="px-4 py-3">{{ app.age }}</td>
-              <td class="px-4 py-3 capitalize">{{ app.gender }}</td>
-              <td class="px-4 py-3">@{{ app.socialMedia || 'n/a' }}</td>
-              <td class="px-4 py-3">{{ formatDate(app.createdAt) }}</td>
-              <td class="px-4 py-3 flex gap-2">
-                <button class="px-2 py-1 bg-pink-600 text-white rounded hover:bg-pink-700" @click="select(app.id)">View</button>
-                <button class="px-2 py-1 bg-gray-800 text-white rounded border border-white/10 hover:bg-gray-700" @click="copyContact(app)">Copy</button>
-                <button class="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700" @click="onDelete(app.id)">Delete</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Mobile cards -->
-      <div class="md:hidden grid grid-cols-1 gap-3 mt-4">
-        <div v-for="app in applications" :key="app.id" class="rounded border border-white/10 bg-white/5 p-3">
-          <div class="flex items-center justify-between">
-            <div class="font-medium text-white">{{ app.fullName }}</div>
-            <div class="text-xs text-gray-400">{{ formatDate(app.createdAt) }}</div>
-          </div>
-          <div class="text-xs text-gray-400">@{{ app.socialMedia || 'n/a' }}</div>
-          <div class="text-sm text-gray-300 mt-1">{{ app.age }} • {{ app.gender }}</div>
-          <div class="mt-2 flex gap-2">
-            <button class="px-2 py-1 bg-pink-600 text-white rounded text-xs" @click="select(app.id)">View</button>
-            <button class="px-2 py-1 bg-gray-800 text-white rounded border border-white/10 text-xs" @click="copyContact(app)">Copy</button>
-            <button class="px-2 py-1 bg-red-600 text-white rounded text-xs" @click="onDelete(app.id)">Delete</button>
-          </div>
-        </div>
-      </div>
-
-      <div v-if="meta" class="mt-6 flex items-center gap-3">
-        <button :disabled="meta.page === 1" class="px-3 py-2 bg-gray-800 text-white rounded border border-white/10 disabled:opacity-50" @click="prevPage">Prev</button>
-        <div class="text-white text-sm">Page {{ meta.page }} / {{ meta.totalPages }}</div>
-        <button :disabled="meta.page === meta.totalPages" class="px-3 py-2 bg-gray-800 text-white rounded border border-white/10 disabled:opacity-50" @click="nextPage">Next</button>
-      </div>
-
-      <div v-if="selected" class="mt-8 border rounded p-4 bg-white/10">
-        <div class="flex items-start gap-4">
-          <img
-            v-if="selected.photoDataUrl"
-            :src="selected.photoDataUrl"
-            alt="photo"
-            class="w-28 h-28 object-cover rounded"
-          />
-          <div>
-            <h3 class="text-xl font-semibold text-white">{{ selected.fullName }}</h3>
-            <div class="text-sm text-gray-400">{{ selected.age }} • {{ selected.gender }}</div>
-            <div class="text-sm text-gray-400">Handle: @{{ selected.socialMedia || 'n/a' }}</div>
-            <div class="text-sm text-gray-400">Phone: {{ selected.phoneNumber }}</div>
-            <div class="text-sm text-gray-400">Cooking: {{ selected.cookingSkills }}/5</div>
-            <div class="text-sm text-gray-400">Body Count Tier: {{ selected.bodyCount }}</div>
-            <div class="text-sm text-gray-400">Communicate: {{ selected.communicate }}</div>
-            <div class="text-sm text-gray-400">Pet: {{ selected.petPreference || 'n/a' }}</div>
-          </div>
-        </div>
-        <div class="mt-4">
-          <div class="text-white font-semibold mb-1">Bio</div>
-          <p class="text-gray-200 whitespace-pre-line">{{ selected.bio }}</p>
-        </div>
-        <div class="mt-4">
-          <div class="text-white font-semibold mb-1">Interests</div>
-          <p class="text-gray-200 whitespace-pre-line">{{ selected.interests }}</p>
-        </div>
-        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <div class="text-white font-semibold mb-1">Brings to table</div>
-            <p class="text-gray-200">{{ selected.table || '—' }}</p>
-          </div>
-          <div>
-            <div class="text-white font-semibold mb-1">Ideal Date</div>
-            <p class="text-gray-200">{{ selected.idealDate || '—' }}</p>
-          </div>
-        </div>
-        <div class="mt-4 flex gap-2">
-          <button class="px-3 py-2 text-sm bg-red-600 text-white rounded" @click="onDelete(selected.id)">Delete</button>
-          <button class="px-3 py-2 text-sm bg-gray-700 text-white rounded" @click="selectedId = ''">Close</button>
-        </div>
-      </div>
+      </nav>
     </div>
   </div>
 </template>
@@ -228,112 +152,146 @@
 <script setup lang="ts">
 definePageMeta({ middleware: ["auth"] });
 
-import { ref, computed, watch } from "vue";
-import { useRoute, useRouter, useAsyncData, useRequestURL } from "#app";
-import type { ApplicationRecord } from "~/composables/useApplications";
+import type { Product, ProductCategory, ProductInput } from "~/types";
 import { useAdminAuth } from "~/composables/useAdminAuth";
 
 const { logout } = useAdminAuth();
-const route = useRoute();
-const router = useRouter();
-
+const activeTab = ref<"overview" | "products" | "create">("overview");
 const search = ref("");
-const gender = ref("");
-const page = ref(1);
-const pageSize = ref<number>(10);
-const selectedId = ref<string>("");
-const selected = ref<ApplicationRecord | null>(null);
+const editingId = ref<string | null>(null);
+const isSaving = ref(false);
+const isMutating = ref(false);
+const formError = ref("");
+const successText = ref("");
 
-const reqUrl = useRequestURL();
-const apiBase = process.client ? window.location.origin : `${reqUrl.protocol}//${reqUrl.host}`;
+const emptyForm = (): ProductInput => ({
+  name: "",
+  price: 0,
+  image: "",
+  note: "",
+  size: "",
+  category: "hot",
+  badge: "",
+  inStock: true,
+});
+
+const form = ref<ProductInput>(emptyForm());
 
 const { data, pending, error, refresh } = await useAsyncData(
-  "applications",
-  () =>
-    $fetch<{ items: ApplicationRecord[]; meta: any }>("/api/applications", {
-      baseURL: apiBase,
-      params: {
-        search: search.value || undefined,
-        gender: gender.value || undefined,
-        page: page.value,
-        pageSize: pageSize.value,
-      },
-    }),
-  { watch: [search, gender, page, pageSize], server: true }
+  "admin-products",
+  () => $fetch<{ items: Product[] }>("/api/products"),
+  { server: true },
 );
 
-const applications = computed(() => data.value?.items || []);
-const meta = computed(() => data.value?.meta || { page: 1, pageSize: pageSize.value, total: 0, totalPages: 1, counts: { female: 0, male: 0, other: 0 } });
-const loading = computed(() => pending.value);
-const errorText = computed(() => (error.value as any)?.data?.message || (error.value as any)?.message || "");
+const products = computed(() => data.value?.items || []);
+const errorText = computed(() => (error.value as any)?.statusMessage || (error.value as any)?.message || "");
+const filteredProducts = computed(() => {
+  const q = search.value.trim().toLowerCase();
+  if (!q) return products.value;
+  return products.value.filter((item) => [item.name, item.note, item.category, item.size].join(" ").toLowerCase().includes(q));
+});
 
-function resetFilters() {
-  search.value = "";
-  gender.value = "";
-  page.value = 1;
+const inStockCount = computed(() => products.value.filter((item) => item.inStock).length);
+const outOfStockCount = computed(() => products.value.filter((item) => !item.inStock).length);
+const avgPrice = computed(() => {
+  if (!products.value.length) return 0;
+  const total = products.value.reduce((sum, item) => sum + item.price, 0);
+  return Math.round(total / products.value.length);
+});
+const canSubmit = computed(() =>
+  form.value.name.trim() &&
+  form.value.image.trim() &&
+  form.value.note.trim() &&
+  form.value.size.trim() &&
+  Number.isFinite(form.value.price) &&
+  form.value.price >= 0,
+);
+
+const currency = (value: number) => `KES ${value}`;
+
+function resetForm() {
+  editingId.value = null;
+  form.value = emptyForm();
+  formError.value = "";
 }
 
-async function select(id: string) {
-  selectedId.value = id;
-  selected.value = await $fetch<ApplicationRecord>(`/api/applications/${id}`, { baseURL: apiBase });
+function startEdit(product: Product) {
+  editingId.value = product.id;
+  form.value = {
+    name: product.name,
+    price: product.price,
+    image: product.image,
+    note: product.note,
+    size: product.size,
+    category: product.category,
+    badge: product.badge || "",
+    inStock: product.inStock,
+  };
 }
 
-async function onDelete(id: string) {
-  if (confirm("Delete this application?")) {
-    await $fetch(`/api/applications/${id}`, { method: "DELETE", baseURL: apiBase });
-    if (selectedId.value === id) selectedId.value = "";
-    refresh();
+async function saveProduct() {
+  formError.value = "";
+  successText.value = "";
+  if (!canSubmit.value) {
+    formError.value = "Please fill all required fields correctly.";
+    return;
   }
-}
 
-function formatDate(iso?: string) {
+  isSaving.value = true;
   try {
-    return new Date(iso as string).toLocaleString();
-  } catch {
-    return iso || '';
+    if (editingId.value) {
+      await $fetch(`/api/products/${editingId.value}`, {
+        method: "PUT",
+        body: { ...form.value, category: form.value.category as ProductCategory },
+      });
+      successText.value = "Product updated successfully.";
+    } else {
+      await $fetch("/api/products", {
+        method: "POST",
+        body: { ...form.value, category: form.value.category as ProductCategory },
+      });
+      successText.value = "Product created successfully.";
+    }
+    resetForm();
+    activeTab.value = "products";
+    await refresh();
+  } catch (err: any) {
+    formError.value = err?.data?.message || err?.statusMessage || "Could not save product.";
+  } finally {
+    isSaving.value = false;
   }
 }
 
-function nextPage() {
-  if (meta.value && meta.value.page < meta.value.totalPages) {
-    page.value = meta.value.page + 1;
+async function toggleStock(product: Product) {
+  successText.value = "";
+  isMutating.value = true;
+  try {
+    await $fetch(`/api/products/${product.id}`, {
+      method: "PUT",
+      body: { inStock: !product.inStock },
+    });
+    successText.value = product.inStock ? "Product marked out of stock." : "Product restocked.";
+    await refresh();
+  } finally {
+    isMutating.value = false;
   }
 }
 
-function prevPage() {
-  if (meta.value && meta.value.page > 1) {
-    page.value = meta.value.page - 1;
+async function removeProduct(id: string) {
+  if (!confirm("Delete this product?")) return;
+  successText.value = "";
+  isMutating.value = true;
+  try {
+    await $fetch(`/api/products/${id}`, { method: "DELETE" });
+    if (editingId.value === id) resetForm();
+    successText.value = "Product deleted successfully.";
+    await refresh();
+  } finally {
+    isMutating.value = false;
   }
 }
 
-function copyContact(app: ApplicationRecord) {
-  const text = `${app.fullName} | ${app.phoneNumber} | @${app.socialMedia || 'n/a'}`;
-  navigator.clipboard.writeText(text);
-}
-
-function exportCsv() {
-  const rows = [
-    [
-      'id','createdAt','fullName','phoneNumber','age','gender','bio','interests','bringsTable','idealDate','cookingSkills','communicate','bodyCount','socialMedia','petPreference','communicationStyle'
-    ],
-    ...applications.value.map(a => [
-      a.id, a.createdAt || '', a.fullName, a.phoneNumber, a.age, a.gender, a.bio, a.interests, a.table || '', a.idealDate || '', a.cookingSkills, a.communicate, a.bodyCount, a.socialMedia || '', a.petPreference || '', a.communicationStyle
-    ])
-  ];
-  const csv = rows.map(r => r.map(v => `"${String(v ?? '').replaceAll('"','""')}"`).join(',')).join('\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.setAttribute('download', `applications_${Date.now()}.csv`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-}
-
-if (route.query.id && typeof route.query.id === 'string') {
-  select(route.query.id);
-  router.replace({ path: "/admin" });
+function onImagePreviewError(event: Event) {
+  (event.target as HTMLImageElement).style.display = "none";
 }
 </script>
