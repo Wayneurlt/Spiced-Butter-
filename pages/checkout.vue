@@ -60,6 +60,10 @@ const whatsappUrl = computed(
         </div>
 
         <div class="sb-checkout-card__actions">
+          <NuxtLink to="/" class="sb-back-catalogue">
+            ← Continue Shopping (Add More Products)
+          </NuxtLink>
+
           <a
             class="sb-whatsapp"
             :class="{ 'sb-whatsapp--disabled': selectedItems.length === 0 }"
