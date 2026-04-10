@@ -2,6 +2,14 @@
 const { selectedItems, totalItems, totalAmount, currency, increase, decrease } =
   useStorefront();
 const cartOpen = ref(false);
+
+function onCartTriggerClick(event: MouseEvent) {
+  // On touch/tablet widths, first tap opens mini-cart, second tap can navigate.
+  if (window.innerWidth <= 980 && !cartOpen.value) {
+    event.preventDefault();
+    cartOpen.value = true;
+  }
+}
 </script>
 
 <template>
@@ -23,6 +31,7 @@ const cartOpen = ref(false);
         to="/checkout"
         class="sb-cart__trigger"
         aria-label="View cart"
+        @click="onCartTriggerClick"
       >
         <svg
           class="sb-cart__icon"

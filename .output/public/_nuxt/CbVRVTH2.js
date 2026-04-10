@@ -1,0 +1,1 @@
+import{a4 as e,a0 as u}from"./rb9bvwsp.js";import{u as i}from"./CHYqMVTG.js";const n=e(t=>{const{isAuthenticated:a}=i();if(!a())return u({path:"/auth/login",query:{redirect:t.fullPath}})});export{n as default};

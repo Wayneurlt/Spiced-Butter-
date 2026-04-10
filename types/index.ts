@@ -6,6 +6,7 @@ interface Product {
   price: number;
   image: string;
   note: string;
+  description: string;
   size: string;
   category: ProductCategory;
   badge?: string;

@@ -17,6 +17,7 @@ export default defineEventHandler(async (event) => {
     name: body.name?.trim(),
     image: body.image?.trim(),
     note: body.note?.trim(),
+    description: body.description?.trim(),
     size: body.size?.trim(),
     category: body.category,
     badge: body.badge?.trim(),

@@ -8,6 +8,7 @@ const dataFile = join(process.cwd(), "server", "data", "products.json");
 
 const mapDateProduct = (item: any): Product => ({
   ...item,
+  description: item.description || item.note || "",
   createdAt: item.createdAt instanceof Date ? item.createdAt.toISOString() : item.createdAt,
   updatedAt: item.updatedAt instanceof Date ? item.updatedAt.toISOString() : item.updatedAt,
 });
@@ -25,7 +26,9 @@ async function listProductsFromFile() {
   await ensureDataFile();
   const raw = await fs.readFile(dataFile, "utf-8");
   const parsed = JSON.parse(raw) as Product[];
-  return parsed.sort((a, b) => a.name.localeCompare(b.name));
+  return parsed
+    .map((item) => ({ ...item, description: item.description || item.note || "" }))
+    .sort((a, b) => a.name.localeCompare(b.name));
 }
 
 async function createProductInFile(input: ProductInput) {
@@ -88,6 +91,7 @@ export async function createProduct(input: ProductInput) {
         price: input.price,
         image: input.image,
         note: input.note,
+        description: input.description,
         size: input.size,
         category: input.category,
         badge: input.badge || null,
@@ -107,6 +111,7 @@ export async function updateProduct(id: string, patch: Partial<ProductInput>) {
       where: { id },
       data: {
         ...patch,
+        description: patch.description,
         badge: patch.badge === undefined ? undefined : patch.badge || null,
       },
     });

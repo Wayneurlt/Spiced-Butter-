@@ -1,7 +1,7 @@
 import { useCookie, navigateTo } from "#app";
 
-const ADMIN_EMAIL = "wayneurlt@gmail.com";
-const ADMIN_PASSWORD = "W20974802g@";
+const ADMIN_EMAIL = "spicedbutter254@gmail.com";
+const ADMIN_PASSWORD = "Spicedbutter_254";
 const COOKIE_KEY = "admin_session_v1";
 
 export function useAdminAuth() {

@@ -30,6 +30,7 @@ const products = [
     category: "hot",
     badge: "Most Popular",
     image: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=900&q=80",
+    description: "Rich, aromatic oil infused with spices and hot chillies for a deep savory heat. Mix into your favourite stews and soups, fried or boiled eggs, kachumbari, noodles or stir-fried rice.",
     inStock: true,
   },
   {
@@ -40,6 +41,7 @@ const products = [
     size: "250g jar",
     category: "tangy",
     image: "https://images.unsplash.com/photo-1609501676725-7186f7340f81?auto=format&fit=crop&w=900&q=80",
+    description: "Tangy and spicy tamarind-based dip with a bold coastal profile. Use as a dip for viazi karai, bhajia, fries, samosas or nyama choma.",
     inStock: true,
   },
   {
@@ -51,6 +53,7 @@ const products = [
     category: "sweet",
     badge: "Chef Pick",
     image: "https://images.unsplash.com/photo-1476124369491-e7addf5db371?auto=format&fit=crop&w=900&q=80",
+    description: "A vibrant blend of sweet, tangy and spiced mango mush. Serve as a relish with chicken or pork choma, chapati, nyama choma or rice dishes.",
     inStock: true,
   },
   {
@@ -61,6 +64,7 @@ const products = [
     size: "250g jar",
     category: "savory",
     image: "https://images.unsplash.com/photo-1529059997568-3d847b1154f0?auto=format&fit=crop&w=900&q=80",
+    description: "Fresh, herb-based sauce with a spicy, zesty kick. Use as a marinade for pan-fried chicken, samaki wa kupaka or nyama choma, or dressing for wraps and sandwiches.",
     inStock: true,
   },
   {
@@ -71,6 +75,7 @@ const products = [
     size: "250g jar",
     category: "tangy",
     image: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=900&q=80",
+    description: "Crisp, fresh red onions bathed in a tangy, lightly sweet brine. Add to your kachumbari, sandwiches or vegetable salad bowls.",
     inStock: true,
   },
   {
@@ -82,6 +87,7 @@ const products = [
     category: "savory",
     badge: "New",
     image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=900&q=80",
+    description: "Rich, sticky, savory glaze balancing sweetness and umami depth. Perfect for stir-frys (noodles, pork, chicken wings, veggies or drumsticks) and grilled meats.",
     inStock: true,
   },
 ];
@@ -122,6 +128,7 @@ async function main() {
         price: p.price,
         image: p.image,
         note: p.note,
+        description: p.description,
         size: p.size,
         category: p.category,
         badge: p.badge || null,

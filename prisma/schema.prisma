@@ -37,6 +37,7 @@ model Product {
   price     Int
   image     String
   note      String
+  description String @default("")
   size      String
   category  String
   badge     String?

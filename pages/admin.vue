@@ -37,7 +37,8 @@
             <select v-model="form.category" class="p-2 bg-white border border-[#d7b07a] rounded">
               <option value="hot">Hot</option><option value="sweet">Sweet</option><option value="tangy">Tangy</option><option value="savory">Savory</option>
             </select>
-            <textarea v-model.trim="form.note" class="md:col-span-2 p-2 bg-white border border-[#d7b07a] rounded" rows="3" placeholder="Product note" required />
+            <textarea v-model.trim="form.note" class="md:col-span-2 p-2 bg-white border border-[#d7b07a] rounded" rows="2" placeholder="Short note (front of card)" required />
+            <textarea v-model.trim="form.description" class="md:col-span-2 p-2 bg-white border border-[#d7b07a] rounded" rows="4" placeholder="Detailed description (back of card)" required />
             <div class="md:col-span-2 rounded border border-[#e7cba4] bg-white p-2 flex items-center gap-3" v-if="form.image">
               <img :src="form.image" alt="preview" class="w-12 h-12 rounded object-cover border border-[#e7cba4]" @error="onImagePreviewError" />
               <span class="text-xs text-[#9a6a21]">Image preview</span>
@@ -169,6 +170,7 @@ const emptyForm = (): ProductInput => ({
   price: 0,
   image: "",
   note: "",
+  description: "",
   size: "",
   category: "hot",
   badge: "",
@@ -188,7 +190,7 @@ const errorText = computed(() => (error.value as any)?.statusMessage || (error.v
 const filteredProducts = computed(() => {
   const q = search.value.trim().toLowerCase();
   if (!q) return products.value;
-  return products.value.filter((item) => [item.name, item.note, item.category, item.size].join(" ").toLowerCase().includes(q));
+  return products.value.filter((item) => [item.name, item.note, item.description, item.category, item.size].join(" ").toLowerCase().includes(q));
 });
 
 const inStockCount = computed(() => products.value.filter((item) => item.inStock).length);
@@ -202,6 +204,7 @@ const canSubmit = computed(() =>
   form.value.name.trim() &&
   form.value.image.trim() &&
   form.value.note.trim() &&
+  form.value.description.trim() &&
   form.value.size.trim() &&
   Number.isFinite(form.value.price) &&
   form.value.price >= 0,
@@ -222,6 +225,7 @@ function startEdit(product: Product) {
     price: product.price,
     image: product.image,
     note: product.note,
+    description: product.description || "",
     size: product.size,
     category: product.category,
     badge: product.badge || "",
